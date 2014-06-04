@@ -1,9 +1,25 @@
 <?php
-
+/**
+ *
+ * @version     PHP 5.*
+ * @author      Chuehnone chuehnone@gmail.com
+ * @copyright   Copyright (c) 2014 The author
+ */
 class XMLTag
 {
+    /**
+     * @var string
+     */
     protected $tag;
+
+    /**
+     * @var array(key => value, ...)
+     */
     protected $attributes;
+
+    /**
+     * @var string|array(XMLTag, ...)
+     */
     protected $value;
 
     public function __construct($tag = null, array $attributes = array(), $value = null)
@@ -67,9 +83,70 @@ class XMLTag
      * Convert SimpleXMLElement to XMLTag
      * 
      * @param SimpleXMLElement $simpleXMLElement
+     * 
      * @return this
      */
     public function loadSimpleXMLElement(SimpleXMLElement $simpleXMLElement)
+    {
+        $tagObj = $this->simpleXMLElementToXMLTag($simpleXMLElement);
+        $this->tag = $tagObj->tag;
+        $this->attributes = $tagObj->attributes;
+        $this->value = $tagObj->value;
+
+        return $this;
+    }
+
+    /**
+     * Convert SimpleXMLElement to XMLTag
+     * 
+     * @param  SimpleXMLElement $simpleXMLElement
+     * 
+     * @return XMLTag
+     */
+    protected function simpleXMLElementToXMLTag(SimpleXMLElement $simpleXMLElement)
+    {
+        $tagObj = new XMLTag();
+        $tagObj->tag = $simpleXMLElement->getName();
+
+        // Get XML attributes to array
+        $attributes = array();
+        $sXMLElementAtr = $simpleXMLElement->attributes();
+        foreach ($sXMLElementAtr as $atr) {
+            $attributes[$atr->getName()] = (string)$atr;
+        }
+        $tagObj->attributes = $attributes;
+        unset($sXMLElementAtr, $atr);
+
+        // Get XML value or nodes
+        if ($simpleXMLElement->count()) {
+            $sXMLElementNode = $simpleXMLElement->children();
+            foreach ($sXMLElementNode as $node) {
+                $tagObj->value[] = $this->simpleXMLElementToXMLTag($node);
+                unset($node);
+            }
+            unset($sXMLElementNode);
+        } else {
+            $tagObj->value = (string)$simpleXMLElement;
+        }
+
+        return $tagObj;
+    }
+
+    /**
+     * To XML
+     * If the path is null, it returns XML string on successs and false on error.
+     * If the path is not null, it returns true if the file was written successfully and false otherwise.
+     * 
+     * @param string $path
+     * 
+     * @return bool|string
+     */
+    public function toXML($path = null)
+    {
+        $xmlObj = new SimpleXMLElement($this->tag);
+    }
+
+    protected function xmlTagToSimpleXMLElement(XMLTag $tagObj)
     {
 
     }
@@ -79,6 +156,7 @@ class XMLTag
      * 
      * @param string $key   XML attribute name
      * @param string $value XML attribute value
+     * 
      * @return this
      */
     public function appendAttribute($key, $value)
@@ -116,4 +194,5 @@ class XMLTag
         return $ary;
     }
 }
+
 ?>
