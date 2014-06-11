@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources name="Enjoy" value="life">
+
+    <string name="button_go">Go</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="button_apply">Apply</string>
+    <string name="banner_text">Enjoy your life</string>
+
+</resources>

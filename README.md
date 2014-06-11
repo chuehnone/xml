@@ -1,4 +1,4 @@
-xml
+PHP XMLTag
 ===
 
-PHP xml
+PHP XMLTag provides another XML implementation for php.

@@ -143,12 +143,43 @@ class XMLTag
      */
     public function toXML($path = null)
     {
-        $xmlObj = new SimpleXMLElement($this->tag);
+        $xmlContent = "<{$this->tag}/>";
+        if (!is_array($this->value)) {
+            $xmlContent = "<{$this->tag}>{$this->value}</{$this->tag}>";
+        }
+        $xmlObj = new SimpleXMLElement($xmlContent);
+
+        $this->xmlTagToSimpleXMLElement($this, $xmlObj);
+
+        if (is_null($path)) {
+            return $xmlObj->asXML();
+        }
+        return $xmlObj->asXML($path);
     }
 
-    protected function xmlTagToSimpleXMLElement(XMLTag $tagObj)
+    /**
+     * To XML
+     * 
+     * @param  XMLTag           $xmlTag
+     * @param  SimpleXMLElement $simpleXMLElement
+     */
+    protected function xmlTagToSimpleXMLElement(XMLTag $xmlTag, SimpleXMLElement $simpleXMLElement)
     {
+        if (!empty($xmlTag->attributes)) {
+            foreach ($xmlTag->attributes as $key => $value) {
+                $simpleXMLElement->addAttribute($key, $value);
+            }
+            unset($key, $value);
+        }
 
+        if (is_array($xmlTag->value)) {
+            foreach ($xmlTag->value as $node) {
+                $nodeXmlObj = is_array($node->value) ? 
+                    $simpleXMLElement->addChild($node->tag) : 
+                    $simpleXMLElement->addChild($node->tag, $node->value);
+                $xmlTag->xmlTagToSimpleXMLElement($node, $nodeXmlObj);
+            }
+        }
     }
 
     /**
